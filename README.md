@@ -49,10 +49,14 @@ CUDA_VISIBLE_DEVICES=0 python train_LFDOF.py
 Test the NRKNet trained witn different training datasets (DPDD | LFDOF).
 
 #### Options
-* Training and testing datasets. 
+* Select the training and testing datasets in config.py. 
   * 'train['train_dataset_name']':  The name of a dataset to train. `DPDD` | `LFDOF`. Default: `DPDD`
   * 'test['dataset']':  The name of a dataset to evaluate. `DPDD` | `LFDOF` | `RTF`| `RealDOF`. Default: `DPDD`
-
+   
+* Run test.py. 
+```shell
+CUDA_VISIBLE_DEVICES=0 python test.py
+```
 
 
 ## Contact
