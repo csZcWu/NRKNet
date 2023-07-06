@@ -118,8 +118,8 @@ def train(config):
     setup_seed(0)
     tb = TensorBoardX(config_filename='train_config.py', sub_dir=config.train['sub_dir'])
     log_file = open('{}/{}'.format(tb.path, 'train.log'), 'w')
-    train_dataset = Dataset('Dataset_train_DPDD'])
-    test_dataset = TestDataset('Dataset_test_DPDD'])
+    train_dataset = Dataset('Dataset_train_LFDOF'])
+    test_dataset = TestDataset('Dataset_test_LFDOF'])
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=config.train['batch_size'],
                                                    shuffle=True, drop_last=True, num_workers=4, pin_memory=True,
                                                    worker_init_fn=worker_init_fn_seed)
