@@ -125,7 +125,7 @@ def train(config):
     train_dataset = Dataset('Dataset_train_DPDD'])
     test_dataset = TestDataset('Dataset_test_DPDD'])
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=config.train['batch_size'],
-                                                   shuffle=True, drop_last=True, num_workers=4, pin_memory=True,
+                                                   shuffle=True, drop_last=True, num_workers=1, pin_memory=True,
                                                    worker_init_fn=worker_init_fn_seed)
     test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=config.train['test_batch_size'],
                                                   shuffle=False, drop_last=True, num_workers=1, pin_memory=True)
