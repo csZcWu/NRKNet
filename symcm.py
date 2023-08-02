@@ -13,7 +13,7 @@ class FullRKR(nn.Module):
         self.kernels = nn.Parameter(torch.rand(num_blurred_version * 3, 1, 1, self.kernel_size), requires_grad=True)
 
     def forward(self, x, dilation=1):
-        k_xs = F.softmax(self.kernels, dim=3)
+        k_xs = F.softmax((self.kernels+self.kernels.flip(-1))/2, dim=3)
         k_ys = k_xs.view((self.num_blurred_version * 3, 1, self.ks, 1))
         # x = F.pad(x, [self.kernel_padding] * 4, mode='reflect')
         # print(self.kernels.shape, k_xs.shape, k_ys.shape, x.shape)
