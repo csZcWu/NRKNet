@@ -46,7 +46,7 @@ class NRKNet(nn.Module):
         in_ch = config.net['in_ch']
         self.SummationLayer = SumLayer(num_kernels + 1)
         self.MultiplyLayer = MultiplyLayer()
-        self.RKR = FullRKR(num_kernels)
+        self.GCM = FullRKR(num_kernels)
         self.APU = SqueezeAttentionBlock(base_channel, num_kernels + 1)
 
         self.Encoder = nn.ModuleList([
@@ -77,11 +77,15 @@ class NRKNet(nn.Module):
     def forward(self, x, y=None, phase='train', scales=3):
         blurrys = []
         deblurred = []
+        items=[]
+        x_2 = F.interpolate(x, scale_factor=0.5)
+        x_4 = F.interpolate(x_2, scale_factor=0.5)
+        xs = [x_4, x_2, x]
         if phase == 'train':
-            xs = [F.interpolate(x, scale_factor=0.5 ** i) for i in range(scales)]
-            xs.reverse()
-            ys = [F.interpolate(y, scale_factor=0.5 ** i) for i in range(scales)]
-            ys.reverse()
+
+            y_2 = F.interpolate(y, scale_factor=0.5)
+            y_4 = F.interpolate(y_2, scale_factor=0.5)
+            ys = [y_4, y_2, y]
             h, c = self.APU.conv_atten.init_hidden(xs[0].shape[0], (xs[0].shape[-2] // 2, xs[0].shape[-1] // 2))
             dbd = xs[-1]
             for i in range(len(xs)):
@@ -113,21 +117,18 @@ class NRKNet(nn.Module):
                 db_result = xs[i]
                 temp = xs[i]
                 for j in range(scales - i):
-                    # (I-B)·temp
-                    # temp = temp - self.SummationLayer(self.MultiplyLayer(self.RKR(temp,dilation=1), F.softmax(z_,dim=1)))
-                    temp = temp - self.SummationLayer(self.MultiplyLayer(self.RKR(temp), z_))
+                    temp = temp - self.SummationLayer(self.MultiplyLayer(self.GCM(temp), z_))
                     db_result = db_result + temp
+                items.append(temp)
                 dbd = dbd + F.interpolate(temp, scale_factor=2 ** (scales - i - 1), mode='bilinear')
                 deblurred.append(db_result)
-                blur = self.SummationLayer(self.MultiplyLayer(self.RKR(ys[i]), z_))
+                blur = self.SummationLayer(self.MultiplyLayer(self.GCM(ys[i]), z_))
                 blurrys.append(blur)
                 h = F.interpolate(h, scale_factor=2, mode='bilinear')
                 c = F.interpolate(c, scale_factor=2, mode='bilinear')
             deblurred.append(dbd)
             return deblurred, blurrys
         else:
-            xs = [F.interpolate(x, scale_factor=0.5 ** i) for i in range(scales)]
-            xs.reverse()
             h, c = self.APU.conv_atten.init_hidden(xs[0].shape[0], (xs[0].shape[-2] // 2, xs[0].shape[-1] // 2))
             dbd = xs[-1]
             for i in range(len(xs)):
@@ -158,13 +159,17 @@ class NRKNet(nn.Module):
                 z_, h, c = self.APU(z, (h, c))
                 temp = xs[i]
                 for j in range(scales - i):
-                    # (I-B)·temp
-                    temp = temp - self.SummationLayer(self.MultiplyLayer(self.RKR(temp), z_))
+                    temp = temp - self.SummationLayer(self.MultiplyLayer(self.GCM(temp), z_))
+                items.append(temp)
                 dbd = dbd + F.interpolate(temp, scale_factor=2 ** (scales - i - 1), mode='bilinear')
                 if i < scales - 1:
                     h = F.interpolate(h, scale_factor=2, mode='bilinear')
                     c = F.interpolate(c, scale_factor=2, mode='bilinear')
-            deblurred.append(dbd)
+            deblurred.append(
+                xs[-1] + items[-1] + F.interpolate(items[-2], scale_factor=2, mode='bilinear') + F.interpolate(
+                    items[-3],
+                    scale_factor=4,
+                    mode='bilinear'))
             return deblurred, blurrys
 
 
@@ -172,30 +177,6 @@ if __name__ == '__main__':
     import config as config
     from thop import profile
     kmlnet = NRKNet(config).cuda()
-    # print(type(kmlnet))
     a = torch.rand((1, 3, 1280, 720)).cuda()
-    # b,c = kmlnet(a)
-    # print(b,c)
-    # # kmlnet.eval()
     flops, params = profile(kmlnet, inputs=(a,None,'test'))
-    # c, d = profile(kmlnet, (a, ))
     print(flops/2, params)
-    # b, c, _ = kmlnet(a, None, 'test')
-    # print(b,c)
-
-    # kmlnet = CSFNet(config).cuda()
-    # # a = torch.rand((1, 3, 720, 640)).cuda()
-    # # b = kmlnet(a)
-    # total_time = 0
-    # with torch.no_grad():
-    #     for i in range(10):
-    #         torch.cuda.empty_cache()
-    #         a = torch.rand((1, 3, 1296, 720)).cuda()
-    #         st = time.time()
-    #         torch.cuda.synchronize()
-    #         dbs, bs = kmlnet(a, phase='test')
-    #         print(dbs[-1].shape, len(dbs))
-    #         torch.cuda.synchronize()
-    #         if i:
-    #             total_time = total_time + time.time() - st
-    #     print(total_time / 9)
