@@ -122,8 +122,8 @@ def train(config):
     setup_seed(0)
     tb = TensorBoardX(config_filename='train_config.py', sub_dir=config.train['sub_dir'])
     log_file = open('{}/{}'.format(tb.path, 'train.log'), 'w')
-    train_dataset = Dataset('Dataset_train_DPDD'])
-    test_dataset = TestDataset('Dataset_test_DPDD'])
+    train_dataset = Dataset('Dataset_train_DPDD')
+    test_dataset = TestDataset('Dataset_test_DPDD')
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=config.train['batch_size'],
                                                    shuffle=True, drop_last=True, num_workers=1, pin_memory=True,
                                                    worker_init_fn=worker_init_fn_seed)
@@ -147,10 +147,7 @@ def train(config):
 
     if config.train['resume'] is not None:
         last_epoch = load_model(nrknet, config.train['resume'], epoch=config.train['resume_epoch'])
-
-    if config.train['resume_optimizer'] is not None:
-        _ = load_optimizer(optimizer, nrknet, config.train['resume_optimizer'], epoch=config.train['resume_epoch'])
-        assert last_epoch == _
+#
 
     train_loss_log_list = []
     val_loss_log_list = []
