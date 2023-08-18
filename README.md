@@ -62,7 +62,11 @@ CUDA_VISIBLE_DEVICES=0 python test.py
 * Modify the path of a re-trained model in config.py.
 
 ```shell
-train['resume'] = './save/NRKNet_' + train['train_dataset_name'] + <font color="red">'/0'</font>
+# From
+train['resume'] = './save/NRKNet_' + train['train_dataset_name'] + '/0'
+
+#To
+train['resume'] = './save/NRKNet_' + train['train_dataset_name'] + '/1'
 ```
 
 * Select the training and testing datasets in config.py.
