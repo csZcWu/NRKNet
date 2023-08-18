@@ -46,7 +46,7 @@ CUDA_VISIBLE_DEVICES=0 python train_DPDD.py
 CUDA_VISIBLE_DEVICES=0 python train_LFDOF.py
 ```
 ## Test the NRKNet
-After training, test the NRKNet trained witn different training datasets (DPDD | LFDOF).
+Test the pre-trained models for CVPR.
 
 #### Options
 * Select the training and testing datasets in config.py. 
@@ -58,6 +58,16 @@ After training, test the NRKNet trained witn different training datasets (DPDD |
 CUDA_VISIBLE_DEVICES=0 python test.py
 ```
 
+#### Test with your re-trained models
+* Modify the path of a re-trained model in config.py.
+
+```shell
+train['resume'] = './save/NRKNet_' + train['train_dataset_name'] + <font color="red">'/0'</font>
+```
+
+* Select the training and testing datasets in config.py.
+
+* Run test.py
 
 ## Contact
 Open an issue for any inquiries.
