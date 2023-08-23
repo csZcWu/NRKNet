@@ -27,7 +27,7 @@ data_offset = 'G:/datasets/'
 net = {}
 net['xavier_init_all'] = True
 net['num_res'] = 1
-net['num_kernels'] = 20
+net['num_kernels'] = 21
 net['kernel_mode'] = 'FG'
 net['in_ch'] = 3
 
