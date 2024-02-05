@@ -2,13 +2,13 @@
 test_time = False
 
 train = {}
-train['train_dataset_name'] = 'LFDOF'
+train['train_dataset_name'] = 'DPDD'  # 'LFDOF'
 train['batch_size'] = 4
 train['val_batch_size'] = 4
 train['test_batch_size'] = 1
 
 train['num_pre-train_epochs'] = 5000
-train['num_epochs'] = 5000
+train['num_epochs'] = 5000  # 300
 train['log_epoch'] = 1
 train['optimizer'] = 'Adam'
 train['learning_rate'] = 1e-4
