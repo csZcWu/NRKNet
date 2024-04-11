@@ -46,7 +46,6 @@ CUDA_VISIBLE_DEVICES=0 python train_DPDD.py
 CUDA_VISIBLE_DEVICES=0 python train_LFDOF.py
 ```
 ## Test the NRKNet
-Test the pre-trained models for CVPR.
 
 #### Download the pre-trained models
 Download the [pre-trained models](https://www.dropbox.com/scl/fo/g3c7wr6kat1y1k6ga58xz/AH2nNG0PIr3hcj1BkgMCjQI?rlkey=ky8i6ih4cg6nn7mlse0l0pawa&dl=0) and unzip datasets under `[NRKNet-main]`:
